@@ -227,6 +227,7 @@ class TriageResult(BaseModel):
         description="具体的就医和健康管理建议。应结合患者症状、年龄、性别及检索到的指南，给出有针对性的建议、需要补充的信息以及危险信号。不能只输出客套话或建议患者自行确诊。"
     )
 
+
 # 直接使用结构化输出，不再先生成普通文本再二次提取
 structured_llm = llm.with_structured_output(
     TriageResult,
@@ -270,6 +271,7 @@ def screen_emergency(state: PatientState) -> PatientState:
     else:
         state["emergency_flag"] = False
     return state
+
 
 def generate_diagnosis(state: PatientState) -> PatientState:
     """
@@ -433,16 +435,16 @@ def generate_diagnosis(state: PatientState) -> PatientState:
         ]
 
         if (
-            not result_obj.diagnosis_room.strip()
-            or any(word in result_obj.diagnosis_room for word in invalid_departments)
+                not result_obj.diagnosis_room.strip()
+                or any(word in result_obj.diagnosis_room for word in invalid_departments)
         ):
             raise ValueError(
                 f"科室字段不符合要求：{result_obj.diagnosis_room}"
             )
 
         if (
-            not result_obj.diagnosis.strip()
-            or result_obj.diagnosis.strip() == symptom.strip()
+                not result_obj.diagnosis.strip()
+                or result_obj.diagnosis.strip() == symptom.strip()
         ):
             raise ValueError(
                 f"病因字段不符合要求：{result_obj.diagnosis}"
@@ -548,7 +550,11 @@ if __name__ == '__main__':
     symptom = input("请输入您的症状：")
     name = input("请输入您的姓名：")
     sex = input("请输入您的性别：")
+    while sex != "男" and sex != "女":
+        sex = input("请正确输入性别：")
     age = input("请输入您的年龄：")
+    while age <= 0:
+        age = input("请正确输入年龄：")
     health_insurance = input("您是否有医保呢？1.有 2.无\n")
 
     initial_state = {
